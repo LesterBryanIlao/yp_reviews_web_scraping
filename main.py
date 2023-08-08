@@ -1,4 +1,5 @@
 import csv
+import os
 from configparser import ConfigParser
 from time import sleep
 import time
@@ -11,13 +12,10 @@ from selenium.webdriver.support import expected_conditions as EC
 
 WAIT_TIME = 20
 
-def scrape_hotel_links(website, output_file):
-	"""Scrapes the hotel links from the given website and writes them to the given output file.
 
-	Args:
-    website: The URL of the website to scrape.
-    output_file: The path to the output file.
-    """
+def collect_links(url) -> list:
+	"""Collects all the links from the given url."""
+
 	parser = ConfigParser()
 	parser.read('project.config')
 
@@ -30,12 +28,15 @@ def scrape_hotel_links(website, output_file):
 
 	# driver = webdriver.Chrome(service=service, options=chrome_options)
 	driver = webdriver.Chrome(service=service)
-	driver.get(website)
+
+	driver.get(url)
 	driver.implicitly_wait(WAIT_TIME)
 	driver.maximize_window()
 
 	start_time = time.time()
+
 	hotels = []
+
 	next_page_button = driver.find_element(By.XPATH, "//a[@class='next ajax-page']")
 
 	while len(hotels) < 500 and next_page_button.is_displayed():
@@ -47,28 +48,54 @@ def scrape_hotel_links(website, output_file):
 				true_link = link.get_attribute('href')
 				print(f"Adding {true_link}")
 				hotels.append(true_link)
-				with open(output_file, 'a', newline='') as csvfile:
-					writer = csv.writer(csvfile, delimiter=',')
-					writer.writerow([true_link])
 			except Exception as e:
 				print(e)
 				continue
+		try:
+			driver.refresh()
+			next_page_button = wait.until(EC.element_to_be_clickable((By.XPATH, "//a[@class='next ajax-page']")))
+			next_page_button.click()
+		except Exception as e:
+			print(e)
+			break
+	print("Execution time: {} seconds".format(time.time() - start_time))
 
-		next_page_button = wait.until(EC.element_to_be_clickable((By.XPATH, "//a[@class='next ajax-page']")))
-		next_page_button.click()
+	return hotels
 
 
+def write_to_csv_file(data: list[str], output_file: str):
+	"""Writes the given data to the given output file.
 
-	# with open(output_file, 'w', newline='') as csvfile:
-	# 	writer = csv.writer(csvfile, delimiter=',')
-	# 	for hotel in hotels:
-	# 		writer.writerow([hotel])
+	Args:
+    data: The data to write to the file.
+    output_file: The path to the output file.
+    """
+	for _ in data:
+		with open(output_file, 'a', newline='') as file:
+			writer = csv.writer(file)
+			writer.writerow([_])
+def convert_csv_file_to_list(file_name: str) -> list[str]:
+	"""Converts the given csv file to a list.
 
-	end_time = time.time()
-	print("Execution time: {} seconds".format(end_time - start_time))
+	Args:
+	file_name: The path to the csv file.
 
-if __name__ == '__main__':
-	website = "https://www.yellowpages.com/search?search_terms=hotel&geo_location_terms=New+York%2C+NY"
-	# website = "https://www.yellowpages.com/search?search_terms=hotel&geo_location_terms=Las+Vegas%2C+NV"
-	output_file = f"{website[-2:]}_hotel_links.csv"
-	scrape_hotel_links(website, output_file)
+	Returns:
+	A list containing the data from the csv file.
+	"""
+	data = []
+	with open(file_name, newline='') as file:
+		reader = csv.reader(file)
+		for row in reader:
+			data.append(row[0])
+	return data
+
+# def get_data(url):
+
+
+# if __name__ == '__main__':
+# 	# website = "https://www.yellowpages.com/search?search_terms=hotel&geo_location_terms=New+York%2C+NY"
+# 	website = "https://www.yellowpages.com/search?search_terms=hotel&geo_location_terms=Las+Vegas%2C+NV"
+# 	output_file = f"{website[-2:]}_hotel_links.csv"
+# 	write_to_csv_file(collect_links(website), output_file)
+
