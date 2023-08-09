@@ -12,10 +12,7 @@ from selenium.webdriver.support import expected_conditions as EC
 
 WAIT_TIME = 20
 
-
-def collect_links(url) -> list:
-	"""Collects all the links from the given url."""
-
+def get_driver() -> webdriver:
 	parser = ConfigParser()
 	parser.read('project.config')
 
@@ -26,8 +23,13 @@ def collect_links(url) -> list:
 	chrome_options = Options()
 	chrome_options.add_argument("--headless")
 
-	# driver = webdriver.Chrome(service=service, options=chrome_options)
-	driver = webdriver.Chrome(service=service)
+	driver = webdriver.Chrome(service=service, options=chrome_options)
+	# driver = webdriver.Chrome(service=service)
+
+	return driver
+def collect_links(url) -> list:
+	"""Collects all the links from the given url."""
+	driver = get_driver()
 
 	driver.get(url)
 	driver.implicitly_wait(WAIT_TIME)
