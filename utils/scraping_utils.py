@@ -1,6 +1,7 @@
 import csv
 
 class ScrapeUtil:
+
     @staticmethod
     def get_links(csv_files: list, output_file: str) -> list:
         temp_list = []
