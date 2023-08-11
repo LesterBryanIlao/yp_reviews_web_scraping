@@ -11,7 +11,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.remote.webelement import WebElement
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-
+import re
 
 class ScrapeUtil:
 	@staticmethod
@@ -224,3 +224,14 @@ def get_specific_detail(detail: str, parent: WebElement, mode: By, title_attribu
         return contents_dict.get(detail)  # Using .get() method to retrieve value or return None if not found
     except NoSuchElementException:
         return None
+
+def get_digits_only(text: str) -> int:
+	"""Gets the digits from the given text.
+
+	Args:
+		text: The text to search for digits.
+
+	Returns:
+		The digits from the given text.
+	"""
+	return int(''.join([_ for _ in text if _.isdigit()]))
