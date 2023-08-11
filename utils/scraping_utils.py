@@ -1,15 +1,16 @@
 import csv
 import time
 from configparser import ConfigParser
+from typing import Any
 
 from selenium import webdriver
 from selenium.common import NoSuchElementException
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
+from selenium.webdriver.remote.webelement import WebElement
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-
 
 
 class ScrapeUtil:
@@ -81,6 +82,8 @@ class ScrapeUtil:
 		# driver = webdriver.Chrome(service=service)
 
 		return driver
+
+
 WAIT_TIME = 20
 
 
@@ -133,6 +136,8 @@ def write_to_csv_file(data: list[str], output_file: str):
 		with open(output_file, 'a', newline='') as file:
 			writer = csv.writer(file)
 			writer.writerow([_])
+
+
 def convert_csv_file_to_list(file_name: str) -> list[str]:
 	"""Converts the given csv file to a list.
 
@@ -149,21 +154,73 @@ def convert_csv_file_to_list(file_name: str) -> list[str]:
 			data.append(row[0])
 	return data
 
-def get_more_details(parent, mode: By, attrribute: str):
-    """Gets the details from the given parent element.
+
+def get_parent(mode: By, attribute: str, driver: webdriver) -> WebElement | None:
+	"""Gets the parent element from the given driver.
+
+	Args:
+	mode: The mode to search by.
+	attribute: The attribute to search for.
+	driver: The driver to search from.
+
+	Returns:
+	The parent element from the given driver.
+	"""
+	try:
+		parent = driver.find_element(mode, attribute)
+		return parent
+	except NoSuchElementException:
+		return None
+
+
+def get_more_details(parent: WebElement, mode: By, attribute: str) -> list[str]:
+	"""Gets the details from the given parent element.
+
+	Args:
+		parent: The parent element to search from.
+		mode: The mode to search by.
+
+	Returns:
+		The details from the given parent element.
+		:param mode:
+		:param parent:
+		:param attribute:
+	"""
+
+	if parent is None:
+		return None
+
+	try:
+		details = parent.find_elements(mode, attribute)
+
+		return [] if len(details) == 0 else [_.text for _ in details]
+	except (NoSuchElementException, AttributeError):
+		print("No details found")
+		return []
+
+
+def get_specific_detail(detail: str, parent: WebElement, mode: By, title_attribute: str, detail_attribute: str) -> str:
+    """Gets the specific detail from the given parent element.
 
     Args:
+        detail: The detail to search for.
         parent: The parent element to search from.
         mode: The mode to search by.
+        title_attribute: The attribute to match for titles.
+        detail_attribute: The attribute to match for details.
 
     Returns:
-        The details from the given parent element.
+        The detail from the given parent element, or None if not found.
     """
-    try:
-        details = parent.find_elements(mode, attrribute)
+    if not detail:
+        return None
 
-        print("Found details")
-        return [] if len(details) == 0 else [_.text for _ in details]
-    except (NoSuchElementException, AttributeError):
-	    print("No details found")
-	    return []
+    try:
+        titles = get_more_details(parent, mode, title_attribute)
+        details = get_more_details(parent, mode, detail_attribute)
+
+        contents_dict = dict(zip(titles, details))
+
+        return contents_dict.get(detail)  # Using .get() method to retrieve value or return None if not found
+    except NoSuchElementException:
+        return None
