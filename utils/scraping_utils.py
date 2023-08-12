@@ -13,6 +13,8 @@ from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 import re
 import word2num
+
+
 class ScrapeUtil:
 	@staticmethod
 	def get_links(csv_files: list, output_file: str) -> list:
@@ -200,30 +202,31 @@ def get_more_details(parent: WebElement, mode: By, attribute: str) -> list[str]:
 
 
 def get_specific_detail(detail: str, parent: WebElement, mode: By, title_attribute: str, detail_attribute: str) -> str:
-    """Gets the specific detail from the given parent element.
+	"""Gets the specific detail from the given parent element.
 
-    Args:
-        detail: The detail to search for.
-        parent: The parent element to search from.
-        mode: The mode to search by.
-        title_attribute: The attribute to match for titles.
-        detail_attribute: The attribute to match for details.
+	Args:
+		detail: The detail to search for.
+		parent: The parent element to search from.
+		mode: The mode to search by.
+		title_attribute: The attribute to match for titles.
+		detail_attribute: The attribute to match for details.
 
-    Returns:
-        The detail from the given parent element, or None if not found.
-    """
-    if not detail:
-        return None
+	Returns:
+		The detail from the given parent element, or None if not found.
+	"""
+	if not detail:
+		return None
 
-    try:
-        titles = get_more_details(parent, mode, title_attribute)
-        details = get_more_details(parent, mode, detail_attribute)
+	try:
+		titles = get_more_details(parent, mode, title_attribute)
+		details = get_more_details(parent, mode, detail_attribute)
 
-        contents_dict = dict(zip(titles, details))
+		contents_dict = dict(zip(titles, details))
 
-        return contents_dict.get(detail)  # Using .get() method to retrieve value or return None if not found
-    except NoSuchElementException:
-        return None
+		return contents_dict.get(detail)  # Using .get() method to retrieve value or return None if not found
+	except NoSuchElementException:
+		return None
+
 
 def get_digits_only(text: str) -> int:
 	"""Gets the digits from the given text.
@@ -248,3 +251,25 @@ def get_clean_text(text: str) -> str:
 	"""
 	return text.replace('\n', ' ').replace('\t', '').strip()
 
+
+def get_rating(mode: By, attribute: str, driver: webdriver) -> str or None:
+	parent = get_parent(mode, attribute, driver)
+
+	if parent is None:
+		return None
+	try:
+		yp_rating = parent.find_element(By.TAG_NAME, 'div').get_attribute('class')
+		return yp_rating
+	except NoSuchElementException:
+		return None
+
+def get_review_count(mode: By, attribute: str, driver: webdriver) -> str or None:
+	parent = get_parent(mode, attribute, driver)
+
+	if parent is None:
+		return None
+	try:
+		yp_review_count = parent.find_element(By.TAG_NAME, 'span').text
+		return yp_review_count
+	except NoSuchElementException:
+		return None
