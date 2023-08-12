@@ -12,7 +12,7 @@ from selenium.webdriver.remote.webelement import WebElement
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 import re
-
+import word2num
 class ScrapeUtil:
 	@staticmethod
 	def get_links(csv_files: list, output_file: str) -> list:
@@ -235,3 +235,16 @@ def get_digits_only(text: str) -> int:
 		The digits from the given text.
 	"""
 	return int(''.join([_ for _ in text if _.isdigit()]))
+
+
+def get_clean_text(text: str) -> str:
+	"""Gets the clean text from the given text.
+
+	Args:
+		text: The text to clean.
+
+	Returns:
+		The clean text from the given text.
+	"""
+	return text.replace('\n', ' ').replace('\t', '').strip()
+
