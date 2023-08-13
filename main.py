@@ -12,8 +12,6 @@ from selenium.webdriver.support import expected_conditions as EC
 
 
 
-# def get_data(url):
-
 
 # if __name__ == '__main__':
 # 	# website = "https://www.yellowpages.com/search?search_terms=hotel&geo_location_terms=New+York%2C+NY"

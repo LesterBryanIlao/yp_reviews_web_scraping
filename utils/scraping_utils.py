@@ -271,8 +271,6 @@ def get_review_count(mode: By, attribute: str, driver: webdriver) -> str or None
 		return None
 	try:
 		yp_review_count = parent.find_element(By.TAG_NAME, 'span').text
-		# w2n = Word2Num()
-		w2n.parse(yp_review_count)
 		return yp_review_count
 	except NoSuchElementException:
 		return None
@@ -292,3 +290,12 @@ def clean_rating(rating_str, rating_type: str):
 		return None
 
 	return float(rating_num) if rating_num else None
+
+def clean_review_count(review_count_str: str):
+	if review_count_str is None:
+		return None
+
+	review_count_str = get_clean_text(review_count_str)
+	review_count_num = get_digits_only(review_count_str)
+
+	return int(review_count_num) if review_count_num else None

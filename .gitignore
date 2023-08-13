@@ -3,5 +3,4 @@ project.config
 
 *.csv
 venv
-
-try*
+try*.py
