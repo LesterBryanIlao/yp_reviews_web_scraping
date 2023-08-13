@@ -12,7 +12,6 @@ from selenium.webdriver.remote.webelement import WebElement
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 import re
-import word2num
 
 
 class ScrapeUtil:
@@ -270,6 +269,10 @@ def get_review_count(mode: By, attribute: str, driver: webdriver) -> str or None
 		return None
 	try:
 		yp_review_count = parent.find_element(By.TAG_NAME, 'span').text
+		# w2n = Word2Num()
+		w2n.parse(yp_review_count)
 		return yp_review_count
 	except NoSuchElementException:
 		return None
+
+# def

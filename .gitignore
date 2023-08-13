@@ -3,3 +3,5 @@ project.config
 
 *.csv
 venv
+
+try*
