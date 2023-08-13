@@ -10,9 +10,11 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
+from pgsql_conn import YPDatabaseConnection
 
-
-
+yp_db_conn = YPDatabaseConnection();
+all = yp_db_conn.get_all_from_table('yellow_page_reviews')
+print(all)
 # if __name__ == '__main__':
 # 	# website = "https://www.yellowpages.com/search?search_terms=hotel&geo_location_terms=New+York%2C+NY"
 # 	website = "https://www.yellowpages.com/search?search_terms=hotel&geo_location_terms=Las+Vegas%2C+NV"
