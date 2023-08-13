@@ -28,10 +28,12 @@ class YPDatabaseConnection:
 		return results
 
 	# insert values based on this data: name, contact_number, address, yp_rating, yp_review_count, ta_rating, ta_review_count, services_products, payment_methods, languages, categories
-	def insert_into_table(self, table: str, columns: str, values: tuple):
+	def insert_into_table(self, table: str, values: tuple):
 		cursor = self.conn.cursor()
-		print('Adding data to database')
-		print(f"INSERT INTO {table} {columns} VALUES {values};")
-		cursor.execute(f"INSERT INTO {table}{columns} VALUES {values};")
+		columns = ("hotel_name", "contact_number", "address", "yp_rating", "yp_review_count", "ta_rating", "ta_review_count", "services_products", "payment_methods", "languages", "categories", "url")
+		columns_placeholder = ', '.join(columns)
+		values_placeholder = ', '.join(values)
+		print(f'Adding data to database:{values}')
+		cursor.execute(f"INSERT INTO {table} ({columns_placeholder}) VALUES ({values_placeholder});")
 		self.conn.commit()
 		cursor.close()
