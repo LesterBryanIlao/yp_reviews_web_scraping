@@ -13,6 +13,8 @@ from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 import re
 
+from word2number import w2n
+
 
 class ScrapeUtil:
 	@staticmethod
@@ -275,4 +277,18 @@ def get_review_count(mode: By, attribute: str, driver: webdriver) -> str or None
 	except NoSuchElementException:
 		return None
 
-# def
+def clean_rating(rating_str, rating_type: str):
+	if rating_str is None:
+		return None
+
+	if rating_type == 'yp' and 'rating-stars' in rating_str:
+		rating_str = re.sub(r'rating-stars\s*', '', rating_str)
+		rating_str = get_clean_text(rating_str).replace('half', 'point five')
+		rating_num = w2n.word_to_num(rating_str)
+	elif rating_type == 'ta' and 'ta-rating' in rating_str:
+		rating_str = get_clean_text(rating_str).replace('ta-rating extra-rating ', '')
+		rating_num = rating_str[3:].replace('-', '.')
+	else:
+		return None
+
+	return float(rating_num) if rating_num else None
