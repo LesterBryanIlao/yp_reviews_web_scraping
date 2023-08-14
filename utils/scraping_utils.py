@@ -215,8 +215,8 @@ def get_specific_detail(detail: str, parent: WebElement, mode: By, title_attribu
 	Returns:
 		The detail from the given parent element, or None if not found.
 	"""
-	if not detail:
-		return None
+	if detail is None or parent is None:
+		return "Null"
 
 	try:
 		titles = get_more_details(parent, mode, title_attribute)
@@ -226,7 +226,7 @@ def get_specific_detail(detail: str, parent: WebElement, mode: By, title_attribu
 
 		return contents_dict.get(detail)  # Using .get() method to retrieve value or return None if not found
 	except NoSuchElementException:
-		return None
+		return "Null"
 
 
 def get_digits_only(text: str) -> int:
@@ -238,7 +238,7 @@ def get_digits_only(text: str) -> int:
 	Returns:
 		The digits from the given text.
 	"""
-	return ''.join([_ for _ in text if _.isdigit()])
+	return int(''.join([_ for _ in text if _.isdigit()]))
 
 
 def get_clean_text(text: str) -> str:
@@ -250,7 +250,7 @@ def get_clean_text(text: str) -> str:
 	Returns:
 		The clean text from the given text.
 	"""
-	return text.replace('\n', ' ').replace('\t', '').strip() if text else None
+	return text.replace('\n', ' ').replace('\t', '').replace("'","\'").strip() if text else "Null"
 
 
 def get_rating(mode: By, attribute: str, driver: webdriver) -> str or None:
@@ -277,7 +277,7 @@ def get_review_count(mode: By, attribute: str, driver: webdriver) -> str or None
 
 def clean_rating(rating_str, rating_type: str):
 	if rating_str is None:
-		return "0"
+		return 0
 
 	if rating_type == 'yp' and 'rating-stars' in rating_str:
 		rating_str = re.sub(r'rating-stars\s*', '', rating_str)
@@ -287,15 +287,27 @@ def clean_rating(rating_str, rating_type: str):
 		rating_str = get_clean_text(rating_str).replace('ta-rating extra-rating ', '')
 		rating_num = rating_str[3:].replace('-', '.')
 	else:
-		return "0"
+		return 0
 
-	return rating_num if rating_num else "0"
+	return float(rating_num) if rating_num else 0
 
 def clean_review_count(review_count_str: str):
 	if review_count_str is None:
-		return "0"
+		return 0
 
 	review_count_str = get_clean_text(review_count_str)
 	review_count_num = get_digits_only(review_count_str)
 
-	return review_count_num if review_count_num else "0"
+	return review_count_num if review_count_num else 0
+
+def format_value(value):
+    if value is None:
+        return "Null"
+    elif isinstance(value, (int, float)):
+        return value
+    elif isinstance(value, list):
+        return ", ".join(map(lambda x: f"'{x}'", value))
+    # else:
+    #     # Handle strings, escaping single quotes if necessary
+    #     value = value.replace("'", "\'")
+    #     return f"'{value}'"

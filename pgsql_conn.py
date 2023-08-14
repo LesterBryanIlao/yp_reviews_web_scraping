@@ -27,13 +27,21 @@ class YPDatabaseConnection:
 		cursor.close()
 		return results
 
-	# insert values based on this data: name, contact_number, address, yp_rating, yp_review_count, ta_rating, ta_review_count, services_products, payment_methods, languages, categories
-	def insert_into_table(self, table: str, values: tuple):
+	def insert_into_table(self, table: str, values: list):
 		cursor = self.conn.cursor()
-		columns = ("hotel_name", "contact_number", "address", "yp_rating", "yp_review_count", "ta_rating", "ta_review_count", "services_products", "payment_methods", "languages", "categories", "url")
+		columns = (
+		"hotel_name", "contact_number", "address", "yp_rating", "yp_review_count", "ta_rating", "ta_review_count",
+		"services_products", "payment_methods", "languages", "categories", "url")
 		columns_placeholder = ', '.join(columns)
+
+		values = [str(value) if value is not None else "Null" for value in values]
+		values = [f"'{value}'" if value != "Null" else value for value in values]
 		values_placeholder = ', '.join(values)
+
+		query = f"INSERT INTO {table} ({columns_placeholder}) VALUES ({values_placeholder});"
+
 		print(f'Adding data to database:{values}')
-		cursor.execute(f"INSERT INTO {table} ({columns_placeholder}) VALUES ({values_placeholder});")
+		cursor.execute(query)
 		self.conn.commit()
+		print("Successfully added data to database.\n")
 		cursor.close()
